@@ -19,7 +19,49 @@ function QuestionForm(props) {
 
   function handleSubmit(event) {
     event.preventDefault();
-    console.log(formData);
+
+    // Send the form data to the API
+    addQuestion(formData);
+  }
+
+  async function addQuestion(formData) {
+    try {
+      const response = await fetch("http://localhost:4000/questions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          prompt: formData.prompt,
+          answers: [
+            formData.answer1,
+            formData.answer2,
+            formData.answer3,
+            formData.answer4,
+          ],
+          correctIndex: parseInt(formData.correctIndex),
+        }),
+      });
+
+      if (response.ok) {
+        const question = await response.json();
+        // Update the state in the QuestionList component
+        props.onQuestionAdded(question);
+        // Clear the form data
+        setFormData({
+          prompt: "",
+          answer1: "",
+          answer2: "",
+          answer3: "",
+          answer4: "",
+          correctIndex: 0,
+        });
+      } else {
+        console.log("Failed to add question. Status:", response.status);
+      }
+    } catch (error) {
+      console.log("Error:", error);
+    }
   }
 
   return (
@@ -91,3 +133,4 @@ function QuestionForm(props) {
 }
 
 export default QuestionForm;
+
